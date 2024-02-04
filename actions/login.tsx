@@ -1,8 +1,7 @@
 "use server";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import NextAuth from "next-auth";
+import { getProviders, signIn } from "next-auth/react";
 
 export async function loginUser(user: { email: string; password: string }) {
-  console.log(user);
+  console.log("Logging in: ", user);
 }

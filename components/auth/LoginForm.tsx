@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,12 +22,11 @@ import { useForm } from "react-hook-form";
 import { Input } from "../ui/input";
 import { LoginSchema } from "@/schemas";
 import { Button } from "../ui/button";
-import { loginUser } from "@/actions/login";
-// import { login } from "@/actions/login";
+import { signIn } from "next-auth/react";
+import { ButtonLoading } from "@/components/ui/buttonLoader";
+import Link from "next/link";
 
 const LoginForm = () => {
-  const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -30,12 +34,11 @@ const LoginForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    setError("");
-    setSuccess("");
-
     startTransition(async () => {
       // TODO
-      const result = await loginUser(values);
+      signIn("credentials", { callbackUrl: "/" }, values).then((data) => {
+        form.reset();
+      });
     });
   };
 
@@ -81,12 +84,23 @@ const LoginForm = () => {
                   </FormItem>
                 )}
               />
-              <Button className="w-full" type="submit">
+              <Button className="w-full" type="submit" disabled={isPending}>
                 Login
               </Button>
             </form>
           </Form>
         </CardContent>
+        <CardFooter className="gap-2">
+          <p className="text-center items-center flex h-full">
+            Don't have an account?{" "}
+          </p>
+          <Link
+            href="/auth/register"
+            className="cursor-pointer hover:underline "
+          >
+            Register
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );

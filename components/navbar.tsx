@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 const Navbar = () => {
   const { data: session } = useSession();
 
-  console.log(session);
+  console.log("Session: ", session);
   return (
     <nav className="flex w-screen justify-center">
       <ul className="flex w-1/2 justify-around">
