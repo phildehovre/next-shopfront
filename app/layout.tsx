@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/navbar";
 import { cn } from "@/lib/utils";
 import { Providers } from "./providers";
+import { getServerSession } from "next-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 

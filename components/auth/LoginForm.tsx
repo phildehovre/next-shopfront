@@ -25,6 +25,7 @@ import { Button } from "../ui/button";
 import { signIn } from "next-auth/react";
 import { ButtonLoading } from "@/components/ui/buttonLoader";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 const LoginForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -36,8 +37,9 @@ const LoginForm = () => {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     startTransition(async () => {
       // TODO
-      signIn("credentials", { callbackUrl: "/" }, values).then((data) => {
+      signIn("credentials", { ...values, callbackUrl: "/" }).then((data) => {
         form.reset();
+        redirect("/");
       });
     });
   };

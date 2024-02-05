@@ -4,11 +4,11 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
+import Userbutton from "@/components//userButton";
 
 const Navbar = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
-  // console.log("Session: ", session);
   return (
     <nav className="flex w-screen justify-center">
       <ul className="flex w-1/2 justify-around">
@@ -18,14 +18,15 @@ const Navbar = () => {
         <li>
           <Link href="/about">About</Link>
         </li>
-        <li>
-          <Link href="api/auth/signin">Sign in</Link>
-        </li>
-        <li>
-          <Button asChild>
-            <Link href="/api/auth/signout">Sign out</Link>
-          </Button>
-        </li>
+        {status === "authenticated" ? (
+          <li>
+            <Userbutton user={session.user} />
+          </li>
+        ) : (
+          <li>
+            <Link href="/auth/signin">Sign in</Link>
+          </li>
+        )}
       </ul>
     </nav>
   );

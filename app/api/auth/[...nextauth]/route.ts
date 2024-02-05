@@ -3,11 +3,11 @@ import { AuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import * as bcrypt from "bcrypt";
 import NextAuth from "next-auth/next";
-
+import { getUserByEmail } from "@/data/user";
+import { LoginSchema} from "@/schemas";
 
 export const authOptions: AuthOptions = {
     pages: {
-        signIn: "/auth/signin",
     },
     callbacks: {
         async jwt({token, user}) {
@@ -23,7 +23,7 @@ export const authOptions: AuthOptions = {
         async signIn({user, account, profile, email, credentials}) {
             const isAllowedToSignIn = true;
             if (user && isAllowedToSignIn) {
-                return "/auth/signin";
+                return true;
             }
             return false;
         }
@@ -37,26 +37,23 @@ export const authOptions: AuthOptions = {
             password: { label: "Password", type: "password" }
         },       
         async authorize(credentials) {
-            const existingUser = await db.user.findUnique({
-                where: { email: credentials?.email }
-            });
-            if (!existingUser) {
-                throw new Error("Invalid credentials");
+            const validatedFields = LoginSchema.safeParse(credentials);
+    
+            if (validatedFields.success) {
+              const { email, password } = validatedFields.data;
+              
+              const user = await getUserByEmail(email);
+              if (!user || !user.password) return null;
+    
+              const passwordsMatch = await bcrypt.compare(
+                password,
+                user.password,
+              );
+              if (passwordsMatch) return user;
             }
-            
-            if (!credentials?.password) throw new Error("Password is required");
-            
-            // First argument WILL AUTOMATICALLY BE HASHED, the second ALREADY IS (from the database)
-            const passwordMatched = await bcrypt.compare(credentials.password, existingUser.password);
-            console.log(credentials)
-
-            if (!passwordMatched) {
-                throw new Error("Invalid credentials");
-            }
-
-            const {password, ...userWithoutPassword} = existingUser
-            return userWithoutPassword
-        }
+    
+            return null;
+          }
         })
     ]
 }
